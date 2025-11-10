@@ -14,19 +14,19 @@ func main(){
 	store:= db.NewStore(filePath)
 repo:= repository.NewRepo(store)
 crtl:= controller.NewController(repo)
-	TodoHandler:=	handler.NewTodoHandler(crtl)
+	todoHandler:=	handler.NewTodoHandler(crtl)
 
 for{
 	fmt.Print("> ")
 	// waits for user input.
-	fields,err:= TodoHandler.PromptInput() 
+	fields,err:= todoHandler.PromptInput() 
 	 
 	if err != nil{
-		fmt.Print(err)
+		fmt.Println(err)
 
 	}
   
-	err= TodoHandler.HandleCommand(fields)
+	err= todoHandler.HandleCommand(fields)
 
 	if err != nil{
 		fmt.Println(err)
