@@ -10,11 +10,12 @@ import (
 )
 
 func main(){
-	filePath:="/Users/antoniomartinez/programacion/myProjects/go-projects/Go-CLI-TODO/internal/db/db.json"
-	store:= db.NewStore(filePath)
+	
+filePath:="/Users/antoniomartinez/programacion/myProjects/go-projects/Go-CLI-TODO/internal/db/db.json"
+store:= db.NewStore(filePath)
 repo:= repository.NewRepo(store)
 crtl:= controller.NewController(repo)
-	todoHandler:=	handler.NewTodoHandler(crtl)
+todoHandler:=	handler.NewTodoHandler(crtl)
 
 for{
 	fmt.Print("> ")
