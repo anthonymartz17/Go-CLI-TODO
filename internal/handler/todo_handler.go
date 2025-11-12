@@ -6,15 +6,19 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/anthonymartz17/Go-CLI-TODO.git/internal/controller"
 )
 
 type TodoHandler struct{
 	Reader *bufio.Reader
+	Controller controller.TodoControllerInterface
 }
 
-func NewTodoHandler() *TodoHandler{
+func NewTodoHandler(ctrl controller.TodoControllerInterface) *TodoHandler{
   return &TodoHandler{
 		Reader: bufio.NewReader(os.Stdin),
+		Controller: ctrl,
 	}
 }
 
@@ -44,23 +48,11 @@ func(h *TodoHandler)HandleCommand(fields []string)error{
 	case "list":
 		return h.handleList()
 	case "add":
-
-		if len(fields) < 2{
-			return errors.New("missing task | Usage: add <task>")
-		}
-
-		task:= strings.Join(fields[1:]," ")
-		return h.handleAdd(task)
+		return h.handleAdd(fields[1:])
 		
 	case "update":
-		if len(fields) < 3{
-			return errors.New("missing ID or task | Usage: update <id> <task>")
-		}
-
-	 id:= fields[1]
-	 task:= fields[2]
-
-	 return h.handleUpdate(id,task)
+	
+	 return h.handleUpdate(fields[1:])
 
 	case "delete":
 		if len(fields) < 2{
@@ -75,21 +67,36 @@ func(h *TodoHandler)HandleCommand(fields []string)error{
 		os.Exit(0)
 		return nil
 	default:
-		return errors.New("invalid command. Try again")
+		return errors.New("invalid command.  commands: list | add | update | done | delete")
 	}
 
 }
 
 
 func(h *TodoHandler)handleList()error{
-  return nil
+	return h.Controller.PrintList()
 }
 
-func(h *TodoHandler)handleAdd(task string)error{
-	return nil
+func(h *TodoHandler)handleAdd(fields []string)error{
+	if len(fields) == 0{
+		return errors.New("missing task | Usage: add <task>")
+	}
+	taskReq:= strings.Join(fields," ")
+
+	return h.Controller.AddTask(taskReq)
+	
 }
-func(h *TodoHandler)handleUpdate(taskId,task string)error{
-	return nil
+func(h *TodoHandler)handleUpdate(fields []string)error{
+    fmt.Println(fields)
+	if len(fields) < 2{
+		return errors.New("missing ID or task | Usage: update <id> <task>")
+	}
+
+ id:= fields[0]
+ task:= strings.Join(fields[1:]," ")
+
+ return h.Controller.HandleUpdate(id,task)
+
 }
 func(h *TodoHandler)handleDelete(taskId string)error{
 	return nil
