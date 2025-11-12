@@ -14,6 +14,7 @@ type TodoControllerInterface interface{
 	PrintList() error
 	AddTask(task string) error
 	HandleUpdate(taskId,task string) error
+	ToggleDone(taskId string)error
 	HandleDelete(taskId string) error
 
 }
@@ -56,6 +57,9 @@ func(c *TodoController)AddTask(taskReq string)error{
 }
 func(c *TodoController)HandleUpdate(taskId,task string)error{
 	return c.Repo.UpdateTask(taskId,task)
+}
+func(c *TodoController)ToggleDone(taskId string)error{
+	return c.Repo.ToggleDone(taskId)
 }
 func(c *TodoController)HandleDelete(taskId string)error{
 	return nil

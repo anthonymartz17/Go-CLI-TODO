@@ -16,6 +16,7 @@ type TodoRepoInterface interface{
 	GetList() ([]*todo.Todo,error)
 	SaveTask(task *todo.Todo) error
 	UpdateTask(taskId,task string) error
+	ToggleDone(taskId string)error
 	DeleteTask(taskId string)error
 }
 
@@ -80,6 +81,36 @@ func(r *TodoRepo)UpdateTask(taskId,task string)error{
 
 
 
+func(r *TodoRepo)ToggleDone(taskId string)error{
+	 data,err:= r.Store.Load()
+
+	 if err != nil{
+		return err
+	 }
+
+   t,err:= findTaskById(data,taskId)
+    
+	 if err != nil{
+		return err
+	 }
+	  
+	 t.Done = !t.Done
+	return r.Store.Save(data)
+}
+
 func(r *TodoRepo)DeleteTask(taskId string)error{
 	return nil
+}
+
+func findTaskById(tasks []*todo.Todo, id string)(*todo.Todo,error){
+
+  for _,item:= range tasks{
+		if item.Id == id{
+			return item,nil
+		}
+	 
+	}
+		errorMsg:= fmt.Sprintf("task with id: %v, does not exist",id)
+		return nil,errors.New(errorMsg)
+	 
 }

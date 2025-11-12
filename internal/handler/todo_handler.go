@@ -62,6 +62,10 @@ func(h *TodoHandler)HandleCommand(fields []string)error{
 
 		return h.handleDelete(id)
 
+	case "done":
+
+		return h.handleDone(fields[1:])
+
 	case "end":
 		fmt.Println("Program ended")
 		os.Exit(0)
@@ -87,7 +91,6 @@ func(h *TodoHandler)handleAdd(fields []string)error{
 	
 }
 func(h *TodoHandler)handleUpdate(fields []string)error{
-    fmt.Println(fields)
 	if len(fields) < 2{
 		return errors.New("missing ID or task | Usage: update <id> <task>")
 	}
@@ -98,6 +101,19 @@ func(h *TodoHandler)handleUpdate(fields []string)error{
  return h.Controller.HandleUpdate(id,task)
 
 }
+
+func(h *TodoHandler)handleDone(fields []string) error{
+	if len(fields) == 0{
+		return errors.New("missing ID | Usage: done <id>")
+	}
+
+	id:= fields[0]
+
+	return h.Controller.ToggleDone(id)
+
+}
+
+
 func(h *TodoHandler)handleDelete(taskId string)error{
 	return nil
 }
