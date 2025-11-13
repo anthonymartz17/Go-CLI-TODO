@@ -6,11 +6,11 @@ import (
 	"github.com/anthonymartz17/Go-CLI-TODO.git/internal/entity/todo"
 	"github.com/anthonymartz17/Go-CLI-TODO.git/internal/repository"
 )
-type TodoController struct{
-	Repo repository.TodoRepoInterface
+type todoController struct{
+	Repo repository.TodoRepo
 }
 
-type TodoControllerInterface interface{
+type TodoController interface{
 	PrintList() error
 	AddTask(task string) error
 	HandleUpdate(taskId,task string) error
@@ -19,14 +19,14 @@ type TodoControllerInterface interface{
 
 }
 //NewController instantiate a new TodoController
-func NewController(repo repository.TodoRepoInterface) TodoControllerInterface{
-	return &TodoController{
+func NewController(repo repository.TodoRepo) TodoController{
+	return &todoController{
 		Repo: repo,
 	}
 }
 
 //PrintList prints list of tasks
-func(c *TodoController)PrintList()error{
+func(c *todoController)PrintList()error{
 	todos,err:= c.Repo.GetList()
 
 	if err != nil{
@@ -51,16 +51,17 @@ func(c *TodoController)PrintList()error{
   return nil
 }
 
-func(c *TodoController)AddTask(taskReq string)error{
+func(c *todoController)AddTask(taskReq string)error{
   task:= todo.NewTodo(taskReq)
 	return c.Repo.SaveTask(task)
 }
-func(c *TodoController)HandleUpdate(taskId,task string)error{
+func(c *todoController)HandleUpdate(taskId,task string)error{
 	return c.Repo.UpdateTask(taskId,task)
 }
-func(c *TodoController)ToggleDone(taskId string)error{
+func(c *todoController)ToggleDone(taskId string)error{
 	return c.Repo.ToggleDone(taskId)
 }
-func(c *TodoController)HandleDelete(taskId string)error{
-	return nil
+func(c *todoController)HandleDelete(taskId string)error{
+
+	return c.Repo.DeleteTask(taskId)
 }

@@ -8,11 +8,13 @@ import (
 	"github.com/anthonymartz17/Go-CLI-TODO.git/internal/entity/todo"
 )
 
-type TodoRepo struct{
+//todoRepo provides access to the database store for todo tasks
+type todoRepo struct{
 	Store *db.Store
 }
 
-type TodoRepoInterface interface{
+//TodoRepo defines the methods implemented by TodoRepo
+type TodoRepo interface{
 	GetList() ([]*todo.Todo,error)
 	SaveTask(task *todo.Todo) error
 	UpdateTask(taskId,task string) error
@@ -21,14 +23,14 @@ type TodoRepoInterface interface{
 }
 
 //NewRepo instantiate a new TodoRepo
-func NewRepo(store *db.Store) TodoRepoInterface{
+func NewRepo(store *db.Store) TodoRepo{
 
-	return &TodoRepo{
+	return &todoRepo{
 		Store: store,
 	}
 }
 //GetList loads the json database and returns the list of tasks.
-func(r *TodoRepo)GetList()([]*todo.Todo,error){
+func(r *todoRepo)GetList()([]*todo.Todo,error){
 
 	list,err := r.Store.Load()
 
@@ -40,7 +42,7 @@ func(r *TodoRepo)GetList()([]*todo.Todo,error){
 
 }
 //SaveTask loads json database, appends a new task and saves it back.
-func(r *TodoRepo)SaveTask(task *todo.Todo)error{
+func(r *todoRepo)SaveTask(task *todo.Todo)error{
   
 	data,err:= r.Store.Load()
 
@@ -54,7 +56,7 @@ func(r *TodoRepo)SaveTask(task *todo.Todo)error{
 	
 }
 
-func(r *TodoRepo)UpdateTask(taskId,task string)error{
+func(r *todoRepo)UpdateTask(taskId,task string)error{
 	 data,err := r.Store.Load()
 
 	 if err != nil{
@@ -81,7 +83,7 @@ func(r *TodoRepo)UpdateTask(taskId,task string)error{
 
 
 
-func(r *TodoRepo)ToggleDone(taskId string)error{
+func(r *todoRepo)ToggleDone(taskId string)error{
 	 data,err:= r.Store.Load()
 
 	 if err != nil{
@@ -98,8 +100,30 @@ func(r *TodoRepo)ToggleDone(taskId string)error{
 	return r.Store.Save(data)
 }
 
-func(r *TodoRepo)DeleteTask(taskId string)error{
-	return nil
+//DeleteTask removes a task by id
+func(r *todoRepo)DeleteTask(taskId string)error{
+	data,err:= r.Store.Load()
+
+	if err != nil{
+		return err
+	}
+  
+	_,err= findTaskById(data,taskId)
+	if err != nil{
+		return err
+	}
+ 
+	
+	updatedData:= make([]*todo.Todo,0,len(data) - 1)
+
+	for _,item:= range data{
+		if item.Id != taskId{
+			updatedData = append(updatedData, item)
+		}
+	}
+
+	return r.Store.Save(updatedData)
+
 }
 
 func findTaskById(tasks []*todo.Todo, id string)(*todo.Todo,error){
