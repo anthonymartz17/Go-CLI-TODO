@@ -10,19 +10,29 @@ import (
 	"github.com/anthonymartz17/Go-CLI-TODO.git/internal/controller"
 )
 
-type TodoHandler struct{
+type todoHandler struct{
 	Reader *bufio.Reader
-	Controller controller.TodoControllerInterface
+	Controller controller.TodoController
 }
 
-func NewTodoHandler(ctrl controller.TodoControllerInterface) *TodoHandler{
-  return &TodoHandler{
+type TodoHandler interface{
+	PromptInput()([]string,error)
+	HandleCommand(fields []string) error
+	HandleList() error
+	HandleAdd(fields []string) error
+	HandleUpdate(fields []string) error
+	HandleDone(fields []string) error
+	HandleDelete(fields []string) error
+}
+
+func NewTodoHandler(ctrl controller.TodoController) TodoHandler{
+  return &todoHandler{
 		Reader: bufio.NewReader(os.Stdin),
 		Controller: ctrl,
 	}
 }
 
-func (h *TodoHandler)PromptInput()([]string,error){
+func (h *todoHandler)PromptInput()([]string,error){
 	input,err:= h.Reader.ReadString('\n')
 
 	if err != nil{
@@ -35,7 +45,7 @@ func (h *TodoHandler)PromptInput()([]string,error){
 }
 
 
-func(h *TodoHandler)HandleCommand(fields []string)error{
+func(h *todoHandler)HandleCommand(fields []string)error{
 
 	if len(fields) == 0 {
 		return errors.New("no command provided")
@@ -46,25 +56,21 @@ func(h *TodoHandler)HandleCommand(fields []string)error{
 	
 	switch command{
 	case "list":
-		return h.handleList()
+		return h.HandleList()
 	case "add":
-		return h.handleAdd(fields[1:])
+		return h.HandleAdd(fields[1:])
 		
 	case "update":
 	
-	 return h.handleUpdate(fields[1:])
+	 return h.HandleUpdate(fields[1:])
 
 	case "delete":
-		if len(fields) < 2{
-			return errors.New("missing ID | Usage: delete <id> <task>")
-		}
-		id:= fields[1]
-
-		return h.handleDelete(id)
+		
+		return h.HandleDelete(fields[1:])
 
 	case "done":
 
-		return h.handleDone(fields[1:])
+		return h.HandleDone(fields[1:])
 
 	case "end":
 		fmt.Println("Program ended")
@@ -77,11 +83,11 @@ func(h *TodoHandler)HandleCommand(fields []string)error{
 }
 
 
-func(h *TodoHandler)handleList()error{
+func(h *todoHandler)HandleList()error{
 	return h.Controller.PrintList()
 }
 
-func(h *TodoHandler)handleAdd(fields []string)error{
+func(h *todoHandler)HandleAdd(fields []string)error{
 	if len(fields) == 0{
 		return errors.New("missing task | Usage: add <task>")
 	}
@@ -90,7 +96,7 @@ func(h *TodoHandler)handleAdd(fields []string)error{
 	return h.Controller.AddTask(taskReq)
 	
 }
-func(h *TodoHandler)handleUpdate(fields []string)error{
+func(h *todoHandler)HandleUpdate(fields []string)error{
 	if len(fields) < 2{
 		return errors.New("missing ID or task | Usage: update <id> <task>")
 	}
@@ -102,7 +108,7 @@ func(h *TodoHandler)handleUpdate(fields []string)error{
 
 }
 
-func(h *TodoHandler)handleDone(fields []string) error{
+func(h *todoHandler)HandleDone(fields []string) error{
 	if len(fields) == 0{
 		return errors.New("missing ID | Usage: done <id>")
 	}
@@ -114,6 +120,12 @@ func(h *TodoHandler)handleDone(fields []string) error{
 }
 
 
-func(h *TodoHandler)handleDelete(taskId string)error{
-	return nil
+func(h *todoHandler)HandleDelete(fields []string)error{
+	if len(fields) < 1{
+		return errors.New("missing ID | Usage: delete <id>")
+	}
+
+	id:= fields[0]
+
+	return h.Controller.HandleDelete(id)
 }
