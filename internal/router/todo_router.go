@@ -14,7 +14,7 @@ type router struct{
 }
 
 type Router interface{
-	HandleCommand(fields []string) error
+	Route(input string) error
 }
 
 
@@ -26,32 +26,33 @@ func NewRouter(handler handler.TodoHandler)Router{
 }
 
 
-func(r *router)HandleCommand(fields []string)error{
+func(r *router)Route(input string)error{
+	fields:= strings.Fields(strings.TrimSpace(input))
 
 	if len(fields) == 0 {
 		return errors.New("no command provided")
 }
 
-	command:= strings.ToLower(fields[0])
+	cmd:= strings.ToLower(fields[0])
+	args:= fields[1:]
 	
-	
-	switch command{
+	switch cmd{
 	case "list":
 		return r.TodoHandler.HandleList()
 	case "add":
-		return r.TodoHandler.HandleAdd(fields[1:])
+		return r.TodoHandler.HandleAdd(args)
 		
 	case "update":
 	
-	 return r.TodoHandler.HandleUpdate(fields[1:])
+	 return r.TodoHandler.HandleUpdate(args)
 
 	case "delete":
 		
-		return r.TodoHandler.HandleDelete(fields[1:])
+		return r.TodoHandler.HandleDelete(args)
 
 	case "done":
 
-		return r.TodoHandler.HandleDone(fields[1:])
+		return r.TodoHandler.HandleDone(args)
 
 	case "end":
 		fmt.Println("Program ended")
