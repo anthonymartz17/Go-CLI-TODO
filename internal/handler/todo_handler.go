@@ -3,7 +3,6 @@ package handler
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"os"
 	"strings"
 
@@ -16,8 +15,7 @@ type todoHandler struct{
 }
 
 type TodoHandler interface{
-	PromptInput()([]string,error)
-	HandleCommand(fields []string) error
+
 	HandleList() error
 	HandleAdd(fields []string) error
 	HandleUpdate(fields []string) error
@@ -32,55 +30,6 @@ func NewTodoHandler(ctrl controller.TodoController) TodoHandler{
 	}
 }
 
-func (h *todoHandler)PromptInput()([]string,error){
-	input,err:= h.Reader.ReadString('\n')
-
-	if err != nil{
-		return nil,err
-	}
-
-	fields:= strings.Fields(strings.TrimSpace(input))
-	
-	return fields,nil
-}
-
-
-func(h *todoHandler)HandleCommand(fields []string)error{
-
-	if len(fields) == 0 {
-		return errors.New("no command provided")
-}
-
-	command:= strings.ToLower(fields[0])
-	
-	
-	switch command{
-	case "list":
-		return h.HandleList()
-	case "add":
-		return h.HandleAdd(fields[1:])
-		
-	case "update":
-	
-	 return h.HandleUpdate(fields[1:])
-
-	case "delete":
-		
-		return h.HandleDelete(fields[1:])
-
-	case "done":
-
-		return h.HandleDone(fields[1:])
-
-	case "end":
-		fmt.Println("Program ended")
-		os.Exit(0)
-		return nil
-	default:
-		return errors.New("invalid command.  commands: list | add | update | done | delete")
-	}
-
-}
 
 
 func(h *todoHandler)HandleList()error{
