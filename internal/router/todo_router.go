@@ -9,24 +9,31 @@ import (
 	"github.com/anthonymartz17/Go-CLI-TODO.git/internal/handler"
 )
 
-type router struct{
-	TodoHandler handler.TodoHandler
+type TodoHandler interface{
+
+	HandleList() error
+	HandleAdd(fields []string) error
+	HandleUpdate(fields []string) error
+	HandleDone(fields []string) error
+	HandleDelete(fields []string) error
 }
 
-type Router interface{
-	Route(input string) error
+//Ensures *handler.TodoHandler implements TodoHandler interface
+var _ TodoHandler = (*handler.TodoHandler)(nil)
+
+type Router struct{
+	TodoHandler TodoHandler
 }
 
 
-
-func NewRouter(handler handler.TodoHandler)Router{
-	return &router{
+func New(handler TodoHandler) *Router{
+	return &Router{
 		TodoHandler: handler,
 	}
 }
 
 
-func(r *router)Route(input string)error{
+func(r *Router)Route(input string)error{
 	fields:= strings.Fields(strings.TrimSpace(input))
 
 	if len(fields) == 0 {
@@ -54,7 +61,7 @@ func(r *router)Route(input string)error{
 
 		return r.TodoHandler.HandleDone(args)
 
-	case "end":
+	case "exit":
 		fmt.Println("Program ended")
 		os.Exit(0)
 		return nil

@@ -8,29 +8,31 @@ import (
 	"github.com/anthonymartz17/Go-CLI-TODO.git/internal/entity/todo"
 )
 
-//todoRepo provides access to the database store for todo tasks
-type todoRepo struct{
-	Store *db.Store
+// Store interface implemented by db.Store
+type Store interface{
+	Load()([]*todo.Todo,error)
+	Save(payload []*todo.Todo) error
 }
 
-//TodoRepo defines the methods implemented by TodoRepo
-type TodoRepo interface{
-	GetList() ([]*todo.Todo,error)
-	SaveTask(task *todo.Todo) error
-	UpdateTask(taskId,task string) error
-	ToggleDone(taskId string)error
-	DeleteTask(taskId string)error
+//Ensures db.Store implements Store interface
+var _ Store = (*db.Store)(nil)
+
+
+//TodoRepo provides access to the database store for todo tasks
+type TodoRepo struct{
+	Store Store
 }
+
 
 //NewRepo instantiate a new TodoRepo
-func NewRepo(store *db.Store) TodoRepo{
+func New(store Store) *TodoRepo{
 
-	return &todoRepo{
+	return &TodoRepo{
 		Store: store,
 	}
 }
 //GetList loads the json database and returns the list of tasks.
-func(r *todoRepo)GetList()([]*todo.Todo,error){
+func(r *TodoRepo)GetList()([]*todo.Todo,error){
 
 	list,err := r.Store.Load()
 
@@ -42,7 +44,7 @@ func(r *todoRepo)GetList()([]*todo.Todo,error){
 
 }
 //SaveTask loads json database, appends a new task and saves it back.
-func(r *todoRepo)SaveTask(task *todo.Todo)error{
+func(r *TodoRepo)SaveTask(task *todo.Todo)error{
   
 	data,err:= r.Store.Load()
 
@@ -56,7 +58,7 @@ func(r *todoRepo)SaveTask(task *todo.Todo)error{
 	
 }
 
-func(r *todoRepo)UpdateTask(taskId,task string)error{
+func(r *TodoRepo)UpdateTask(taskId,task string)error{
 	 data,err := r.Store.Load()
 
 	 if err != nil{
@@ -83,7 +85,7 @@ func(r *todoRepo)UpdateTask(taskId,task string)error{
 
 
 
-func(r *todoRepo)ToggleDone(taskId string)error{
+func(r *TodoRepo)ToggleDone(taskId string)error{
 	 data,err:= r.Store.Load()
 
 	 if err != nil{
@@ -101,7 +103,7 @@ func(r *todoRepo)ToggleDone(taskId string)error{
 }
 
 //DeleteTask removes a task by id
-func(r *todoRepo)DeleteTask(taskId string)error{
+func(r *TodoRepo)DeleteTask(taskId string)error{
 	data,err:= r.Store.Load()
 
 	if err != nil{
