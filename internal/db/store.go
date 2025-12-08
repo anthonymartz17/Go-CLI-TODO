@@ -12,7 +12,7 @@ type Store struct{
 }
 
 
-func NewStore(filePath string) *Store{
+func New(filePath string) *Store{
  return &Store{
     FilePath:filePath,
 	}

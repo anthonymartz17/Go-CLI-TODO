@@ -1,80 +1,83 @@
 package handler
 
 import (
-	"bufio"
 	"errors"
-	"os"
 	"strings"
 
 	"github.com/anthonymartz17/Go-CLI-TODO.git/internal/controller"
 )
 
-type todoHandler struct{
-	Reader *bufio.Reader
-	Controller controller.TodoController
+//TodoController defines the behavior for managing todo items.
+type TodoController interface{
+	PrintList() error
+	AddTask(task string) error
+	UpdateTask(taskId,task string) error
+	ToggleDone(taskId string)error
+	HandleDelete(taskId string) error
+
 }
 
-type TodoHandler interface{
+//Ensures *controller.TodoController implements TodoController interface
+var _ TodoController = (*controller.TodoController)(nil)
 
-	HandleList() error
-	HandleAdd(fields []string) error
-	HandleUpdate(fields []string) error
-	HandleDone(fields []string) error
-	HandleDelete(fields []string) error
+
+type TodoHandler struct{
+	controller TodoController
 }
 
-func NewTodoHandler(ctrl controller.TodoController) TodoHandler{
-  return &todoHandler{
-		Reader: bufio.NewReader(os.Stdin),
-		Controller: ctrl,
+
+
+func New(ctrl TodoController) *TodoHandler{
+  return &TodoHandler{
+		controller: ctrl,
 	}
 }
 
 
 
-func(h *todoHandler)HandleList()error{
-	return h.Controller.PrintList()
+func(h *TodoHandler)HandleList()error{
+	return h.controller.PrintList()
 }
 
-func(h *todoHandler)HandleAdd(fields []string)error{
-	if len(fields) == 0{
+func(h *TodoHandler)HandleAdd(args []string)error{
+	if len(args) == 0{
 		return errors.New("missing task | Usage: add <task>")
 	}
-	taskReq:= strings.Join(fields," ")
+	taskReq:= strings.Join(args," ")
 
-	return h.Controller.AddTask(taskReq)
-	
+	return h.controller.AddTask(taskReq)
+
 }
-func(h *todoHandler)HandleUpdate(fields []string)error{
-	if len(fields) < 2{
+func(h *TodoHandler)HandleUpdate(args []string)error{
+	if len(args) < 2{
 		return errors.New("missing ID or task | Usage: update <id> <task>")
 	}
 
- id:= fields[0]
- task:= strings.Join(fields[1:]," ")
+ id:= args[0]
+ task:= strings.Join(args[1:]," ")
 
- return h.Controller.HandleUpdate(id,task)
+ return h.controller.UpdateTask(id,task)
 
 }
 
-func(h *todoHandler)HandleDone(fields []string) error{
-	if len(fields) == 0{
+func(h *TodoHandler)HandleDone(args []string) error{
+	if len(args) == 0{
 		return errors.New("missing ID | Usage: done <id>")
 	}
 
-	id:= fields[0]
+	id:= args[0]
 
-	return h.Controller.ToggleDone(id)
+	return h.controller.ToggleDone(id)
 
 }
 
 
-func(h *todoHandler)HandleDelete(fields []string)error{
-	if len(fields) < 1{
+func(h *TodoHandler)HandleDelete(args []string)error{
+	if len(args) == 0 {
 		return errors.New("missing ID | Usage: delete <id>")
 	}
 
-	id:= fields[0]
+	id:= args[0]
 
-	return h.Controller.HandleDelete(id)
+	return h.controller.HandleDelete(id)
 }
