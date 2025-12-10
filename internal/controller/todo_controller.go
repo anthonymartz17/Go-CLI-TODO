@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/anthonymartz17/Go-CLI-TODO.git/internal/entity/todo"
@@ -41,6 +42,10 @@ func(c *TodoController)PrintList()error{
 		return err
 	}
 
+	if len(todos) == 0{
+		return errors.New("list is empty")
+	}
+
 	for i,task:= range todos{
 		taskNum := i+1
 		todo:= task.Task
@@ -63,6 +68,7 @@ func(c *TodoController)AddTask(taskReq string)error{
   task:= todo.NewTodo(taskReq)
 	return c.Repo.SaveTask(task)
 }
+
 func(c *TodoController)UpdateTask(taskId,task string)error{
 	return c.Repo.UpdateTask(taskId,task)
 }
