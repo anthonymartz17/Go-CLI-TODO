@@ -33,15 +33,7 @@ func New(store Store) *TodoRepo{
 }
 //GetList loads the json database and returns the list of tasks.
 func(r *TodoRepo)GetList()([]*todo.Todo,error){
-
-	list,err := r.Store.Load()
-
-	if err != nil{
-		return nil,err
-	}
-
-	return list,nil
-
+	return r.Store.Load()
 }
 //SaveTask loads json database, appends a new task and saves it back.
 func(r *TodoRepo)SaveTask(task *todo.Todo)error{
