@@ -1,8 +1,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
+
+	"github.com/anthonymartz17/Go-CLI-TODO.git/internal/router"
 )
 
 
@@ -11,8 +14,19 @@ import (
 func main(){
 
 if err:= Run(); err != nil{
-	fmt.Println(err)
-	os.Exit(1)
+
+
+	if errors.Is(err,router.ErrExit){
+		fmt.Println("Program  has ended")
+		os.Exit(0)
+		 
+	}else{
+		
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
+
+
 
 }
