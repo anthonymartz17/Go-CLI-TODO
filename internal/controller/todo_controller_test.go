@@ -7,6 +7,7 @@ import (
 	"github.com/anthonymartz17/Go-CLI-TODO.git/internal/entity/todo"
 	"github.com/anthonymartz17/Go-CLI-TODO.git/mocks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -75,29 +76,36 @@ func TestPrintList(t *testing.T){
 
 
 func TestAddTask_Success(t *testing.T){
-  mockRepo:= new(mocks.TodoRepo)
-	crtl:= New(mockRepo)
+	t.Run("valid data",func(t *testing.T) {
+		mockRepo:= new(mocks.TodoRepo)
+		crtl:= New(mockRepo)
+		task:= "buy milk"
 
-  task:= "buy milk"
-	mockRepo.On("SaveTask",task).Return(nil).Once()
- 
-  gotErr:= crtl.AddTask(task)
-
-	assert.NoError(t,gotErr,"should succeed on valid data")
-	mockRepo.AssertExpectations(t)
+		mockRepo.On("SaveTask",mock.Anything).Return(nil).Once()
+		
+		gotErr:= crtl.AddTask(task)
+	
+		assert.NoError(t,gotErr,"should succeed on valid data")
+		mockRepo.AssertExpectations(t)
+	})
 }
 func TestAddTask_RepoFails(t *testing.T){
-	mockRepo:= new(mocks.TodoRepo)
-	crtl:= New(mockRepo)
+	t.Run("addtask repo fails",func(t *testing.T) {
+		mockRepo:= new(mocks.TodoRepo)
+	  crtl:= New(mockRepo)
 
-  task:= "buy milk"
-	err:= errors.New("internal error")
-	mockRepo.On("SaveTask",task).Return(err).Once()
+
+		err:= errors.New("internal error")
+
+		mockRepo.On("SaveTask",mock.Anything).Return(err).Once()
+
+	task:= "buy milk"
 	gotErr:= crtl.AddTask(task)
 
 
 	assert.ErrorIs(t,gotErr,err,"should fail on internal error")
 	mockRepo.AssertExpectations(t)
+	})
 }
 
 func TestUpdateTask_Success(t *testing.T){
