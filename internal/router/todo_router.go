@@ -2,12 +2,13 @@ package router
 
 import (
 	"errors"
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/anthonymartz17/Go-CLI-TODO.git/internal/handler"
 )
+
+var ErrExit = errors.New("exit command received")
+
 
 type TodoHandler interface{
 
@@ -62,9 +63,7 @@ func(r *Router)Route(input string)error{
 		return r.TodoHandler.HandleDone(args)
 
 	case "exit":
-		fmt.Println("Program ended")
-		os.Exit(0)
-		return nil
+		return ErrExit
 	default:
 		return errors.New("invalid command.  commands: list | add | update | done | delete")
 	}

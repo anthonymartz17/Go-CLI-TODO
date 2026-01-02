@@ -2,6 +2,7 @@ package db
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 
 	"github.com/anthonymartz17/Go-CLI-TODO.git/internal/entity/todo"
@@ -23,15 +24,17 @@ func New(filePath string) *Store{
 func(s *Store)Load()([]*todo.Todo,error){
   data,err:= os.ReadFile(s.FilePath)
 
+	if errors.Is(err,os.ErrNotExist){
+		return []*todo.Todo{},nil
+	}
+
 	if err != nil{
 		return nil,err
 	 }
 
 	var tasks []*todo.Todo
 
-	err = json.Unmarshal(data,&tasks)
-
-	if err != nil{
+	if err:= json.Unmarshal(data,&tasks); err != nil{
 		return nil,err
 	 }
 
